@@ -4,6 +4,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugin.logging.Log;
 import org.bovinegenius.forge.Forge;
 import org.eclipse.aether.RepositorySystem;
@@ -13,33 +14,25 @@ import java.util.List;
 
 @Mojo(name = "build", requiresProject = false)
 public class Build extends AbstractMojo {
-  /**
-   * @component
-   */
+  @Component
   private RepositorySystem repoSystem;
 
-  /**
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
-   */
+  // @Parameter(defaultValue="${repositorySystemSession}")
   private RepositorySystemSession repoSession;
 
-  /**
-   * @parameter default-value="${project.remoteProjectRepositories}"
-   * @readonly
-   */
-  private List<RemoteRepository> remoteRepos;
+  // @Parameter(defaultValue="${project.remoteProjectRepositories}")
+  private List<RemoteRepository> repos;
 
-  /**
-   * @parameter expression="${aether.artifactCoords}"
-   */
+  // @Parameter(defaultValue="${aether.artifactCoords}")
   private String artifactCoords;
 
   public void execute() throws MojoExecutionException {
     Log log = getLog();
     log.info("Building...");
+    log.info(String.format("context: %s", getPluginContext()));
     log.info(String.format("artifactCode: %s", artifactCoords));
-    Forge.build(new String[] {});
+    log.info(String.format("repoSystem: %s", repoSystem));
+    Forge.build(repoSystem);
   }
 }
 
