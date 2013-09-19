@@ -9,7 +9,6 @@ object Forge {
   }
 
   def main(args: Array[String]) {
-    println("dunno")
     build(null)
   }
 }
