@@ -10,6 +10,10 @@ object Forge {
 
   def main(args: Array[String]) {
     build(null)
+    println(Ant.taskNames)
+    Ant.tasks.echo(message = "Hello Bob")
+
+    Ant.tasks.mkdir(dir = new java.io.File("/Users/walter/some-test-dir"))
   }
 }
 

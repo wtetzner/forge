@@ -11,6 +11,8 @@ import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
+import org.eclipse.aether.RepositoryListener;
+import org.eclipse.aether.transfer.TransferListener;
 
 class RepoHelper {
   public static RepositorySystem system() {
@@ -21,12 +23,20 @@ class RepoHelper {
     return locator.getService(RepositorySystem.class);
   }
 
-  public static DefaultRepositorySystemSession session(RepositorySystem system, String localRepoName) {
+  public static DefaultRepositorySystemSession session(
+                           RepositorySystem system,
+                           String localRepoName,
+                           RepositoryListener repoListener,
+                           TransferListener transferListener) {
     DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
     LocalRepository localRepo = new LocalRepository(localRepoName);
     session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
-    // session.setTransferListener(new ConsoleTransferListener());
-    // session.setRepositoryListener(new ConsoleRepositoryListener());
+    if (transferListener != null) {
+      session.setTransferListener(transferListener);
+    }
+    if (repoListener != null) {
+      session.setRepositoryListener(repoListener);
+    }
     return session;
   }
 
