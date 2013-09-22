@@ -62,6 +62,7 @@ trait Ant {
 
 object Ant {
   private val ant: Ant = apply()
+  def task(name: String) = ant.task(name)
   def tasks = ant.tasks
   def taskNames = ant.taskNames
   def apply(): Ant = {
