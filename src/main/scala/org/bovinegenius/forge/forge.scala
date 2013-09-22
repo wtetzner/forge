@@ -1,19 +1,23 @@
 package org.bovinegenius.forge
 
-import org.eclipse.aether.RepositorySystem
+import org.bovinegenius.forge.impl.ForgeFactory
 
 object Forge {
-  def build(repoSystem: RepositorySystem) {
-    val rhino = Jar("org.mozilla", "rhino", "1.7R4")
-    println(rhino.loadClass("org.mozilla.javascript.Context"))
+  def apply(): org.bovinegenius.forge.impl.Forge = {
+    // val parent = getClass.getClassLoader
+    // val classLoader = new DynamicClassLoader(parent)
+    // println("classloader: %s".format(classLoader))
+    // val forgeClass = classLoader.loadClass("org.bovinegenius.forge.impl.ForgeFactory")
+    // val forgeObj = forgeClass.newInstance() //.asInstanceOf[ForgeFactory]
+    // forgeClass.getMethod("defaultForge").invoke(forgeObj).asInstanceOf[org.bovinegenius.forge.impl.Forge]
+    // Jar("org.apache.ant", "ant", "1.9.2").load()
+    new org.bovinegenius.forge.impl.ForgeFactory().defaultForge
+    // forgeObj.defaultForge
   }
 
   def main(args: Array[String]) {
-    build(null)
-    println(Ant.taskNames)
-    Ant.tasks.echo(message = "Hello Bob")
-
-    Ant.tasks.mkdir(dir = new java.io.File("/Users/walter/some-test-dir"))
+    val forge = Forge()
+    forge.build(null)
   }
 }
 

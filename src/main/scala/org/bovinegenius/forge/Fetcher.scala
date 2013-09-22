@@ -1,5 +1,6 @@
 package org.bovinegenius.forge
 
+import org.bovinegenius.forge.classloader.ClassLoaderUtils
 import org.apache.maven.plugin.MojoFailureException
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.resolution.ArtifactRequest
@@ -22,12 +23,16 @@ import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
 import org.eclipse.aether.internal.impl.DefaultRepositoryConnectorProvider
 import org.eclipse.aether.installation.InstallRequest
 import org.eclipse.aether.artifact.Artifact
-import java.net.URLClassLoader
 import java.lang.ClassLoader
 import java.net.URL
 import org.eclipse.aether.RepositoryListener
 import org.eclipse.aether.transfer.TransferListener
 import org.eclipse.aether.RepositoryEvent
+import org.eclipse.aether.resolution.DependencyRequest
+import org.eclipse.aether.graph.Dependency
+import org.eclipse.aether.util.artifact.JavaScopes
+import org.eclipse.aether.util.filter.DependencyFilterUtils
+import org.eclipse.aether.collection.CollectRequest
 
 class Jar(groupId: String, artifactId: String, version: String) {
   private var classloader: ClassLoader = null
@@ -40,7 +45,9 @@ class Jar(groupId: String, artifactId: String, version: String) {
     if (classloader == null) {
       val results = install()
       val urls = new Array[URL](results.size())
-      results.indices foreach { i => urls(i) = results(i).getArtifact.getFile.toURI.toURL }
+      results.indices foreach { i =>
+        urls(i) = results(i).getArtifact.getFile.toURI.toURL
+      }
       classloader = Fetcher.loadJars(urls)
     }
     classloader
@@ -64,7 +71,6 @@ object ConsoleRepositoryListener extends RepositoryListener {
     "%s:%s:%s".format(artifact.getGroupId, artifact.getArtifactId, artifact.getVersion)
   }
   def artifactDeployed(event: RepositoryEvent) {
-    // println("Deployed %s".format(name(event)))
   }
   def artifactDeploying(event: RepositoryEvent) {
     print("Deploy %s".format(name(event)))
@@ -75,7 +81,8 @@ object ConsoleRepositoryListener extends RepositoryListener {
     // println("Downloaded %s".format(name(event)))
   }
   def artifactDownloading(event: RepositoryEvent) {
-    println("Download %s".format(name(event)))
+    val ext = event.getArtifact.getExtension
+    println("[%s] Download %s from %s".format(ext, name(event), event.getRepository.getId))
   }
   def artifactInstalled(event: RepositoryEvent) {
     // println("Installed %s".format(name(event)))
@@ -116,8 +123,12 @@ object Fetcher {
   def defaultCentralRepo = RepoHelper.defaultCentralRepo()
 
   def loadJars(jars: Array[URL]) = {
-    val child = new URLClassLoader(jars, this.getClass().getClassLoader());
-    child
+    jars foreach { url =>
+      ClassLoaderUtils.addURL(url)
+    }
+    getClass.getClassLoader
+    // val child = new URLClassLoader(jars, this.getClass().getClassLoader());
+    // child
   }
 
   def defaultRepos = {
@@ -142,15 +153,31 @@ object Fetcher {
 
     val artifact = new DefaultArtifact(groupId, artifactId,
                                        extension, version);
-    val request = new ArtifactRequest();
-    request.setArtifact(artifact);
-    request.setRepositories(remoteRepos);
 
-    val results = repoSystem.resolveArtifacts(session, List(request))
-    val installReq = installRequest(results)
+    val scope = JavaScopes.COMPILE
+    val collectRequest = new CollectRequest()
+    collectRequest.setRoot(new Dependency(artifact, scope))
+    collectRequest.setRepositories(remoteRepos)
+    // val depNode = new DefaultDependencyNode(artifact)
+    // val filter = new ExclusionsDependencyFilter(List())
+    val filter = DependencyFilterUtils.classpathFilter(scope)
+    val depRequest = new DependencyRequest(collectRequest, filter)
+    val depResult = repoSystem.resolveDependencies(session, depRequest)
+    val artResults = depResult.getArtifactResults
 
-    repoSystem.install(session, installReq)
-    results
+    // val arts = List(artifact) ++ (artResults map { res => res.getArtifact })
+
+    // val requests = arts map { art =>
+    //   val request = new ArtifactRequest();
+    //   request.setArtifact(art);
+    //   request.setRepositories(remoteRepos);
+    // }
+
+    // val results = repoSystem.resolveArtifacts(session, requests)
+    // val installReq = installRequest(results)
+
+    // repoSystem.install(session, installReq)
+    artResults
   }
 }
 

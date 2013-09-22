@@ -32,7 +32,7 @@ public class Build extends AbstractMojo {
     log.info(String.format("context: %s", getPluginContext()));
     log.info(String.format("artifactCode: %s", artifactCoords));
     log.info(String.format("repoSystem: %s", repoSystem));
-    Forge.build(repoSystem);
+    Forge.apply().build(repoSystem);
   }
 }
 

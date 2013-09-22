@@ -1,5 +1,6 @@
 package org.bovinegenius.forge
 
+import java.net.URLClassLoader
 import org.apache.tools.ant.Project
 import org.apache.tools.ant.NoBannerLogger
 import org.apache.tools.ant.{Task => AntTask}
@@ -36,6 +37,7 @@ class Task(task: AntTask) {
         (desc.getName, desc.getWriteMethod)
       })
     }
+    // println(_descs.keySet)
     _descs
   }
 
@@ -51,18 +53,30 @@ class Task(task: AntTask) {
   }
 }
 
-object Ant {
-  private val ant: Ant = new Ant()
-  def tasks = ant.tasks
-  def taskNames = ant.taskNames
-  def apply = new Ant()
+trait Ant {
+  def project: Project
+  def task(name: String): Task
+  def taskNames(): scala.collection.Set[String]
+  def tasks: Tasks
 }
 
-class Ant {
+object Ant {
+  private val ant: Ant = apply()
+  def tasks = ant.tasks
+  def taskNames = ant.taskNames
+  def apply(): Ant = {
+    Jar("org.apache.ant", "ant", "1.9.2").load()
+    new DefaultAnt()
+  }
+}
+
+private class DefaultAnt extends Ant {
   private var currentProject: Project = null
   def project = {
     if (currentProject == null) {
-      Jar("org.apache.ant", "ant", "1.9.2").load()
+      getClass.getClassLoader.asInstanceOf[URLClassLoader].getURLs foreach {
+        url =>
+      }
       currentProject = makeProject()
     }
     currentProject
