@@ -8,23 +8,24 @@ trait Forge {
   def build(repoSystem: RepositorySystem)
 }
 
-class ForgeFactory {
-  private class DefaultForge extends Forge {
-    override def build(repoSystem: RepositorySystem) {
-      val rhino = Jar("org.mozilla", "rhino", "1.7R4")
-      // println(rhino.loadClass("org.mozilla.javascript.Context"))
-      // println(Ant.taskNames)
-      Ant.tasks.echo(message = "Hello Bob")
-      val dir1 = new java.io.File("/Users/walter/some-test-dir")
-      val dir2 = new java.io.File("/Users/walter/some-test-dir2")
-      Ant.tasks.mkdir(dir = dir1)
-      Ant.tasks.mkdir(dir = dir2)
-      Ant.tasks.delete(dir = dir1)
-      Ant.tasks.delete(dir = dir2)
-      Ant.tasks.delete(dir = dir2)
-    }
+private class DefaultForge extends Forge {
+  override def build(repoSystem: RepositorySystem) {
+    val rhino = Jar("org.mozilla", "rhino", "1.7R4").load()
+    val proguard = Jar("net.sf.proguard", "proguard-anttask", "4.10").load()
+    // println(rhino.loadClass("org.mozilla.javascript.Context"))
+    // println(Ant.taskNames)
+    Ant.tasks.echo(message = "Some message")
+    val dir1 = new java.io.File("/Users/walter/some-test-dir")
+    val dir2 = new java.io.File("/Users/walter/some-test-dir2")
+    Ant.tasks.mkdir(dir = dir1)
+    Ant.tasks.mkdir(dir = dir2)
+    Ant.tasks.delete(dir = dir1)
+    Ant.tasks.delete(dir = dir2)
+    Ant.tasks.delete(dir = dir2)
   }
+}
 
+class ForgeFactory {
   def defaultForge: Forge = new DefaultForge()
 }
 
