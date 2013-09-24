@@ -61,7 +61,13 @@ trait Ant {
 }
 
 object Ant {
-  private val ant: Ant = apply()
+  private var _ant: Ant = null
+  private def ant = {
+    if (_ant == null) {
+      _ant = apply()
+    }
+    _ant
+  }
   def task(name: String) = ant.task(name)
   def tasks = ant.tasks
   def taskNames = ant.taskNames
