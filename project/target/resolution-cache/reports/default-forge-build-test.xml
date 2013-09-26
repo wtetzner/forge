@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="default"
+		module="forge-build"
+		revision="0.1-SNAPSHOT"
+		extra-sbtVersion="0.13"
+		extra-scalaVersion="2.10"
+		conf="test"
+		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom, scala-tool"
+		date="20130925200309"/>
+	<dependencies>
+		<module organisation="org.ensime" name="ensime-sbt-cmd">
+			<revision name="0.1.2" status="release" pubdate="20130811123331" resolver="public" artresolver="public" homepage="http://github.com/aemoncannon/ensime-sbt-cmd" extra-sbtVersion="0.13" extra-scalaVersion="2.10" downloaded="true" searched="true" default="false" conf="default(compile), default, compile, runtime, master" position="0">
+				<license name="BSD-style" url="http://www.opensource.org/licenses/bsd-license.php"/>
+				<metadata-artifact status="successful" details="" size="1851" time="182" location="/Users/walter/.ivy2/cache/scala_2.10/sbt_0.13/org.ensime/ensime-sbt-cmd/ivy-0.1.2.xml" searched="true" original-local-location="/Users/walter/.ivy2/cache/scala_2.10/sbt_0.13/org.ensime/ensime-sbt-cmd/ivy-0.1.2.xml.original" origin-is-local="false" origin-location="http://repo1.maven.org/maven2/org/ensime/ensime-sbt-cmd_2.10_0.13/0.1.2/ensime-sbt-cmd-0.1.2.pom"/>
+				<caller organisation="default" name="forge-build" conf="test, compile, runtime" rev="0.1.2" rev-constraint-default="0.1.2" rev-constraint-dynamic="0.1.2" callerrev="0.1-SNAPSHOT" extra-sbtVersion="0.13" extra-scalaVersion="2.10"/>
+				<artifacts>
+					<artifact name="ensime-sbt-cmd" type="jar" ext="jar" status="successful" details="" size="135669" time="419" location="/Users/walter/.ivy2/cache/scala_2.10/sbt_0.13/org.ensime/ensime-sbt-cmd/jars/ensime-sbt-cmd-0.1.2.jar">
+						<origin-location is-local="false" location="http://repo1.maven.org/maven2/org/ensime/ensime-sbt-cmd_2.10_0.13/0.1.2/ensime-sbt-cmd-0.1.2.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>

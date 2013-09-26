@@ -37,7 +37,6 @@ class Task(task: AntTask) {
         (desc.getName, desc.getWriteMethod)
       })
     }
-    // println(_descs.keySet)
     _descs
   }
 
