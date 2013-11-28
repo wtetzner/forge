@@ -56,6 +56,7 @@
         "/Users/walter/.ivy2/cache/org.apache.maven/maven-plugin-api/jars/maven-plugin-api-2.0.jar"
         "/Users/walter/.ivy2/cache/org.apache.maven.plugin-tools/maven-plugin-annotations/jars/maven-plugin-annotations-3.2.jar"
         "/Users/walter/.ivy2/cache/org.apache.maven/maven-artifact/jars/maven-artifact-3.0.jar"
+        "/Users/walter/.ivy2/cache/it.unibo.alice.tuprolog/tuprolog/jars/tuprolog-2.1.1.jar"
       )
       :runtime-deps (
         "/Users/walter/.sbt/boot/scala-2.10.2/lib/scala-library.jar"
@@ -101,6 +102,7 @@
         "/Users/walter/.ivy2/cache/org.apache.maven/maven-plugin-api/jars/maven-plugin-api-2.0.jar"
         "/Users/walter/.ivy2/cache/org.apache.maven.plugin-tools/maven-plugin-annotations/jars/maven-plugin-annotations-3.2.jar"
         "/Users/walter/.ivy2/cache/org.apache.maven/maven-artifact/jars/maven-artifact-3.0.jar"
+        "/Users/walter/.ivy2/cache/it.unibo.alice.tuprolog/tuprolog/jars/tuprolog-2.1.1.jar"
         "/Users/walter/wip/forge/target/scala-2.10/classes"
         "/Users/walter/wip/forge/target/scala-2.10/classes"
       )
@@ -148,6 +150,7 @@
         "/Users/walter/.ivy2/cache/org.apache.maven/maven-plugin-api/jars/maven-plugin-api-2.0.jar"
         "/Users/walter/.ivy2/cache/org.apache.maven.plugin-tools/maven-plugin-annotations/jars/maven-plugin-annotations-3.2.jar"
         "/Users/walter/.ivy2/cache/org.apache.maven/maven-artifact/jars/maven-artifact-3.0.jar"
+        "/Users/walter/.ivy2/cache/it.unibo.alice.tuprolog/tuprolog/jars/tuprolog-2.1.1.jar"
         "/Users/walter/wip/forge/target/scala-2.10/classes"
         "/Users/walter/wip/forge/target/scala-2.10/test-classes"
       )

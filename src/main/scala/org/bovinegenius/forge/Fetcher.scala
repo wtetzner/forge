@@ -107,10 +107,6 @@ object ConsoleRepositoryListener extends RepositoryListener {
   def metadataResolving(event: RepositoryEvent) {}
 }
 
-// val classToLoad = Class.forName ("com.MyClass", true, child);
-    // Method method = classToLoad.getDeclaredMethod ("myMethod");
-    // Object instance = classToLoad.newInstance ();
-    // Object result = method.invoke (instance);
 object Fetcher {
   def system = RepoHelper.system()
   def session(system: RepositorySystem = system,
@@ -127,8 +123,6 @@ object Fetcher {
       ClassLoaderUtils.addURL(url)
     }
     getClass.getClassLoader
-    // val child = new URLClassLoader(jars, this.getClass().getClassLoader());
-    // child
   }
 
   def defaultRepos = {
@@ -158,25 +152,12 @@ object Fetcher {
     val collectRequest = new CollectRequest()
     collectRequest.setRoot(new Dependency(artifact, scope))
     collectRequest.setRepositories(remoteRepos)
-    // val depNode = new DefaultDependencyNode(artifact)
-    // val filter = new ExclusionsDependencyFilter(List())
+
     val filter = DependencyFilterUtils.classpathFilter(scope)
     val depRequest = new DependencyRequest(collectRequest, filter)
     val depResult = repoSystem.resolveDependencies(session, depRequest)
     val artResults = depResult.getArtifactResults
 
-    // val arts = List(artifact) ++ (artResults map { res => res.getArtifact })
-
-    // val requests = arts map { art =>
-    //   val request = new ArtifactRequest();
-    //   request.setArtifact(art);
-    //   request.setRepositories(remoteRepos);
-    // }
-
-    // val results = repoSystem.resolveArtifacts(session, requests)
-    // val installReq = installRequest(results)
-
-    // repoSystem.install(session, installReq)
     artResults
   }
 }
