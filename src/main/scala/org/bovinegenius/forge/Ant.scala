@@ -30,7 +30,9 @@ class Task(task: AntTask) {
   }
 
   private lazy val descriptors: Map[String,Method] = {
-    val descs = Introspector.getBeanInfo(task.getClass).getPropertyDescriptors.toList
+    val descs = Introspector.getBeanInfo(task.getClass)
+                            .getPropertyDescriptors
+                            .toList
     makeMap(descs map { desc =>
       (desc.getName, desc.getWriteMethod)
     })
@@ -56,13 +58,7 @@ trait Ant {
 }
 
 object Ant {
-  private var _ant: Ant = null
-  private def ant = {
-    if (_ant == null) {
-      _ant = apply()
-    }
-    _ant
-  }
+  private lazy val ant = apply()
   def task(name: String) = ant.task(name)
   def tasks = ant.tasks
   def taskNames = ant.taskNames
