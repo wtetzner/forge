@@ -5,6 +5,12 @@ version := "0.1.0"
 
 scalaVersion := "2.10.2"
 
+scalacOptions += "-feature"
+
+scalacOptions += "-deprecation"
+
+javacOptions += "-Xlint:unchecked"
+
 libraryDependencies += "org.apache.ant" % "ant" % "1.9.2"
 
 libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.5"

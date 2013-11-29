@@ -29,15 +29,11 @@ class Task(task: AntTask) {
     }
   }
 
-  private var _descs: Map[String,Method] = null
-  private def descriptors = {
-    if (_descs == null) {
-      val descs = List.fromArray(Introspector.getBeanInfo(task.getClass).getPropertyDescriptors)
-      _descs = makeMap(descs map { desc =>
-        (desc.getName, desc.getWriteMethod)
-      })
-    }
-    _descs
+  private lazy val descriptors: Map[String,Method] = {
+    val descs = Introspector.getBeanInfo(task.getClass).getPropertyDescriptors.toList
+    makeMap(descs map { desc =>
+      (desc.getName, desc.getWriteMethod)
+    })
   }
 
   def setProperties(props: Seq[(String,Any)]) {
@@ -77,15 +73,8 @@ object Ant {
 }
 
 private class DefaultAnt extends Ant {
-  private var currentProject: Project = null
-  def project = {
-    if (currentProject == null) {
-      getClass.getClassLoader.asInstanceOf[URLClassLoader].getURLs foreach {
-        url =>
-      }
-      currentProject = makeProject()
-    }
-    currentProject
+  lazy val project = {
+    makeProject()
   }
 
   private def makeProject() = {

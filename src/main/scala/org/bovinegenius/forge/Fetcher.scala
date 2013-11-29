@@ -34,7 +34,7 @@ import org.eclipse.aether.util.artifact.JavaScopes
 import org.eclipse.aether.util.filter.DependencyFilterUtils
 import org.eclipse.aether.collection.CollectRequest
 
-class Jar(groupId: String, artifactId: String, version: String) {
+case class Jar(val groupId: String, val artifactId: String, val version: String) {
   private var classloader: ClassLoader = null
 
   def install() = {
@@ -59,13 +59,7 @@ class Jar(groupId: String, artifactId: String, version: String) {
   }
 }
 
-object Jar {
-  def apply(groupId: String, artifactId: String, version: String) = {
-    new Jar(groupId, artifactId, version)
-  }
-}
-
-object ConsoleRepositoryListener extends RepositoryListener {
+private object ConsoleRepositoryListener extends RepositoryListener {
   def name(event: RepositoryEvent) = {
     val artifact = event.getArtifact
     "%s:%s:%s".format(artifact.getGroupId, artifact.getArtifactId, artifact.getVersion)
@@ -107,7 +101,7 @@ object ConsoleRepositoryListener extends RepositoryListener {
   def metadataResolving(event: RepositoryEvent) {}
 }
 
-object Fetcher {
+private object Fetcher {
   def system = RepoHelper.system()
   def session(system: RepositorySystem = system,
               localRepo: String = defaultLocalRepo,

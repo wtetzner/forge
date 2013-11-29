@@ -9,7 +9,7 @@ import java.io.IOException;
 public class ClassLoaderUtils {
   public static void addURL(URL url) throws IOException {
     URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
-    Class sysclass = URLClassLoader.class;
+    Class<URLClassLoader> sysclass = URLClassLoader.class;
 
     try {
       Method method = sysclass.getDeclaredMethod("addURL", new Class[] { URL.class });
