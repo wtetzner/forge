@@ -6,7 +6,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugin.logging.Log;
-import org.bovinegenius.forge.Forge;
+import org.bovinegenius.forge.Forge$;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -27,12 +27,12 @@ public class Build extends AbstractMojo {
   private String artifactCoords;
 
   public void execute() throws MojoExecutionException {
-    Log log = getLog();
-    log.info("Building...");
-    log.info(String.format("context: %s", getPluginContext()));
-    log.info(String.format("artifactCode: %s", artifactCoords));
-    log.info(String.format("repoSystem: %s", repoSystem));
-    Forge.apply().build(repoSystem);
+    // Log log = getLog();
+    // log.info("Building...");
+    // log.info(String.format("context: %s", getPluginContext()));
+    // log.info(String.format("artifactCode: %s", artifactCoords));
+    // log.info(String.format("repoSystem: %s", repoSystem));
+    // Forge$.apply().build(repoSystem);
   }
 }
 

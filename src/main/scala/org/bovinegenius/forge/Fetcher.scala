@@ -34,11 +34,11 @@ import org.eclipse.aether.util.artifact.JavaScopes
 import org.eclipse.aether.util.filter.DependencyFilterUtils
 import org.eclipse.aether.collection.CollectRequest
 
-case class Jar(val groupId: String, val artifactId: String, val version: String) {
+case class Jar(val group: String, val artifact: String, val version: String) {
   private var classloader: ClassLoader = null
 
   def install() = {
-    Fetcher.fetch(groupId, artifactId, version)
+    Fetcher.fetch(group, artifact, version)
   }
 
   def load() = {

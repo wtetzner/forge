@@ -1,5 +1,6 @@
 package org.bovinegenius.forge
 
+import java.io.File
 import java.net.URLClassLoader
 import org.apache.tools.ant.Project
 import org.apache.tools.ant.NoBannerLogger
@@ -8,6 +9,48 @@ import scala.language.dynamics
 import java.lang.reflect.Method
 import java.beans._
 import scala.collection.JavaConverters._
+
+sealed trait AntException
+case class CoercionException(val message: String)
+    extends Exception(message) with AntException
+
+private object Coercions {
+  def coerceString[T](value: String, cls: Class[T]): Any = {
+    val FileClass = classOf[java.io.File]
+    val StringClass = classOf[java.lang.String]
+    val BooleanClass = classOf[java.lang.Boolean]
+    val CharClass = classOf[java.lang.Character]
+    cls match {
+      case FileClass  => new File(value)
+      case StringClass => value
+      case BooleanClass => (value == "true" || value == "yes" || value == "on")
+      case CharClass => value(0)
+      case _ => throw CoercionException("Unknown String coercion to type: %s".format(cls.getName))
+    }
+  }
+
+  def coerceFile[T](value: File, cls: Class[T]): Any = {
+    val FileClass = classOf[java.io.File]
+    val StringClass = classOf[java.lang.String]
+    val BooleanClass = classOf[java.lang.Boolean]
+    val CharClass = classOf[java.lang.Character]
+    cls match {
+      case FileClass  => value
+      case StringClass => value.toString
+      case BooleanClass => false
+      case CharClass => value.toString()(0)
+      case _ => throw CoercionException("Unknown File coercion to type: %s".format(cls.getName))
+    }
+  }
+
+  def coerce[T](value: Any, cls: Class[T]): Any = {
+    value match {
+      case v: String => coerceString(v, cls)
+      case f: File => coerceFile(f, cls)
+      case _ => value
+    }
+  }
+}
 
 class Tasks(ant: Ant) extends Dynamic {
   def applyDynamicNamed(name: String)(args: (String, Any)*) = {
@@ -41,7 +84,9 @@ class Task(task: AntTask) {
   def setProperties(props: Seq[(String,Any)]) {
     val descs = descriptors
     props.foreach { case (name, value) =>
-      descs(name).invoke(task, value.asInstanceOf[Object])
+      val desc = descs(name)
+      val input = Coercions.coerce(value, desc.getParameterTypes()(0))
+      desc.invoke(task, input.asInstanceOf[Object])
     }
   }
 
