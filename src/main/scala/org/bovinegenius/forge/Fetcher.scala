@@ -4,6 +4,7 @@ import org.bovinegenius.forge.classloader.ClassLoaderUtils
 import org.apache.maven.plugin.MojoFailureException
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.resolution.ArtifactRequest
+import org.eclipse.aether.repository.ArtifactRepository
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.resolution.ArtifactResult
 import org.eclipse.aether.RepositorySystem
@@ -35,23 +36,19 @@ import org.eclipse.aether.util.filter.DependencyFilterUtils
 import org.eclipse.aether.collection.CollectRequest
 
 case class Jar(val group: String, val artifact: String, val version: String) {
-  private var classloader: ClassLoader = null
-
-  def install() = {
-    Fetcher.fetch(group, artifact, version)
-  }
-
-  def load() = {
-    if (classloader == null) {
-      val results = install()
-      val urls = new Array[URL](results.size())
-      results.indices foreach { i =>
-        urls(i) = results(i).getArtifact.getFile.toURI.toURL
-      }
-      classloader = Fetcher.loadJars(urls)
+  private lazy val classloader = {
+    val results = install()
+    val urls = new Array[URL](results.size())
+    results.indices foreach { i =>
+      urls(i) = results(i).getArtifact.getFile.toURI.toURL
     }
-    classloader
+    Fetcher.loadJars(urls)
   }
+
+  def install(): Seq[ArtifactResult] =
+    Fetcher.fetch(group, artifact, version)
+
+  def load() = classloader
 
   def loadClass(classname: String) = {
     val classloader = load()
@@ -76,7 +73,8 @@ private object ConsoleRepositoryListener extends RepositoryListener {
   }
   def artifactDownloading(event: RepositoryEvent) {
     val ext = event.getArtifact.getExtension
-    println("[%s] Download %s from %s".format(ext, name(event), event.getRepository.getId))
+    val repo = event.getRepository.getId
+    println(s"[${ext}] Download ${name(event)} from ${repo}")
   }
   def artifactInstalled(event: RepositoryEvent) {
     // println("Installed %s".format(name(event)))
@@ -116,7 +114,7 @@ private object Fetcher {
     jars foreach { url =>
       ClassLoaderUtils.addURL(url)
     }
-    getClass.getClassLoader
+    ClassLoaderUtils.getClassLoader()
   }
 
   def defaultRepos = {
@@ -134,7 +132,7 @@ private object Fetcher {
             version: String,
             repos: List[RemoteRepository] = defaultRepos,
             localRepo: String = defaultLocalRepo,
-            extension: String = "jar") = {
+            extension: String = "jar"): Seq[ArtifactResult] = {
     val repoSystem = system
     val remoteRepos: java.util.List[RemoteRepository] = repos
     val session = this.session(repoSystem, localRepo)

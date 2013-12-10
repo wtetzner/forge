@@ -7,8 +7,12 @@ import java.lang.reflect.Method;
 import java.io.IOException;
 
 public class ClassLoaderUtils {
+  public static ClassLoader getClassLoader() {
+    return ClassLoader.getSystemClassLoader();
+  }
+
   public static void addURL(URL url) throws IOException {
-    URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
+    URLClassLoader sysloader = (URLClassLoader)getClassLoader();
     Class<URLClassLoader> sysclass = URLClassLoader.class;
 
     try {
