@@ -1,4 +1,4 @@
-import 'js.forge'{exec => runjs}
+import 'forge.js'{exec => runjs}
 
 remote = repo(repo('central', 'https://repo1.maven.org/maven2'),
               repo('clojars', 'http://clojars.org/repo'))
@@ -7,7 +7,8 @@ compile-deps =
   deps(remote.jar('org.clojure', 'clojure', '1.5.1'))
 
 runtime-deps =
-  deps(remote.jar('ring', 'ring-jetty-adapter', '1.1.0'),
+  deps(remote.jar('org.clojure', 'clojure', '1.5.1'),
+       remote.jar('ring', 'ring-jetty-adapter', '1.1.0'),
        jar('lib/render.jar'))
 
 generate-parser(grammer, outfile) =

@@ -4,7 +4,7 @@ import org.bovinegenius.forge.impl.ForgeFactory
 import org.eclipse.aether.RepositorySystem
 
 trait Forge {
-  def build(repoSystem: RepositorySystem = null)
+  def build()
 }
 
 object Forge {
