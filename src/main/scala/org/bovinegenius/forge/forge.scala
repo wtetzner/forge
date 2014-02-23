@@ -12,7 +12,9 @@ object Forge {
 }
 
 object Main {
-  def main(args: Array[String]): Unit = Forge().build()
+  def main(args: Array[String]): Unit = {
+    Forge().build()
+  }
 }
 
 
