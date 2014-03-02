@@ -59,12 +59,13 @@ case class Jar(val group: String, val artifact: String, val version: String) {
 private object ConsoleRepositoryListener extends RepositoryListener {
   def name(event: RepositoryEvent) = {
     val artifact = event.getArtifact
-    "%s:%s:%s".format(artifact.getGroupId, artifact.getArtifactId, artifact.getVersion)
+    import artifact._
+    s"${getGroupId}/${getArtifactId} ${getVersion}"
   }
   def artifactDeployed(event: RepositoryEvent) {
   }
   def artifactDeploying(event: RepositoryEvent) {
-    print("Deploy %s".format(name(event)))
+    print(s"Deploy ${name(event)}")
   }
   def artifactDescriptorInvalid(event: RepositoryEvent) {}
   def artifactDescriptorMissing(event: RepositoryEvent) {}
@@ -74,7 +75,7 @@ private object ConsoleRepositoryListener extends RepositoryListener {
   def artifactDownloading(event: RepositoryEvent) {
     val ext = event.getArtifact.getExtension
     val repo = event.getRepository.getId
-    println(s"[${ext}] Download ${name(event)} from ${repo}")
+    println(s"[${repo}] (${ext}) ${name(event)}... (Download)")
   }
   def artifactInstalled(event: RepositoryEvent) {
     // println("Installed %s".format(name(event)))

@@ -1,4 +1,8 @@
-import 'forge.js'{exec => runjs}
+@default-repository = repo(repo('central', 'https://repo1.maven.org/maven2'),
+                           repo('clojars', 'http://clojars.org/repo'))
+
+@import ('org.bovinegenius', 'forge-js', '0.1.0') as js
+@import ('org.clojure', 'clojure', '1.5.1') as clojure
 
 remote = repo(repo('central', 'https://repo1.maven.org/maven2'),
               repo('clojars', 'http://clojars.org/repo'))
@@ -11,12 +15,13 @@ runtime-deps =
        remote.jar('ring', 'ring-jetty-adapter', '1.1.0'),
        jar('lib/render.jar'))
 
-generate-parser(grammer, outfile) =
-  runjs(file = 'scripts/generate-parser.js',
-        func = 'generateParser'
-        args = [grammar, outfile])
+generate-parser(grammar, outfile) =
+  js.file('scripts/generate-parser.js').generateParser(grammar, outfile)
+  js.call(file = 'scripts/generate-parser.js',
+          func = 'generateParser'
+          args = [grammar, outfile])
 
-protoc-lib = load('org.bovinegenius', 'protoc', '0.1.0')
+protoc-lib = remote.jar('org.bovinegenius', 'protoc', '0.1.0')
 
 protoc(java-out, proto) =
   protoc-lib.call(class = 'org.bovinegenius.protoc.ProtoC',
