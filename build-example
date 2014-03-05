@@ -16,7 +16,7 @@ runtime-deps =
        jar('lib/render.jar'))
 
 generate-parser(grammar, outfile) =
-  js.file('scripts/generate-parser.js').generateParser(grammar, outfile)
+  js.script('scripts/generate-parser.js').generateParser(grammar, outfile)
   js.call(file = 'scripts/generate-parser.js',
           func = 'generateParser'
           args = [grammar, outfile])

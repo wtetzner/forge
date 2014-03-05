@@ -6,6 +6,8 @@ import org.eclipse.aether.repository.RemoteRepository
 import java.net.URLClassLoader
 import org.eclipse.aether.resolution.ArtifactResult
 import java.net.URL
+import org.eclipse.aether.resolution.DependencyResolutionException
+import scala.Stream._
 
 trait Jar {
   // Force the jar to exist on the local filesystem.
@@ -79,9 +81,47 @@ case class StandardMavenRepository(
   }
 }
 
-case class CombinedMavenJar(repos: Seq[MavenRepository]) extends Jar {
-  override def ensure: ArtifactPath = {
-    
+case class CombinedMavenJar(
+  repos: Seq[MavenRepository],
+  val groupId: String,
+  val artifactId: String,
+  val version: String)
+    extends Jar {
+  private def seqToStream[T](seq: Seq[T]): Stream[T] ={
+    if (seq.isEmpty) {
+      Stream.empty
+    } else {
+      seq.head #:: seqToStream(seq.tail)
+    }
+  }
+
+  override lazy val ensure: ArtifactPath = {
+    val results = seqToStream(repos).map(repo => {
+      try {
+        Right(repo.jar(groupId, artifactId, version).ensure)
+      } catch {
+        case e: DependencyResolutionException => {
+          Left(e)
+        }
+      }
+    })
+    val matching = results.filter(result => {
+      result match {
+        case Right(path) => true
+        case Left(e) => false
+      }
+    }).map({
+      case Right(path) => path
+      case Left(e) => null
+    })
+    if (matching.isEmpty) {
+      results.last match {
+        case Right(path) => throw new RuntimeException("Should never happen")
+        case Left(e) => throw e
+      }
+    } else {
+      matching.head
+    }
   }
 }
 
@@ -90,6 +130,6 @@ case class CombinedMavenRepository(
   repos: Seq[MavenRepository])
     extends MavenRepository {
   override def jar(groupId: String, artifactId: String, version: String) =
-    CombinedMavenJar(repos)
+    CombinedMavenJar(repos, groupId, artifactId, version)
 }
 

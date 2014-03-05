@@ -14,6 +14,7 @@
       :version "0.1.0"
       :compile-deps (
         "/Users/walter/.sbt/boot/scala-2.10.2/lib/scala-library.jar"
+        "/Users/walter/.ivy2/cache/org.mozilla/rhino/jars/rhino-1.7R4.jar"
         "/Users/walter/.ivy2/cache/org.apache.ant/ant/jars/ant-1.9.2.jar"
         "/Users/walter/.ivy2/cache/org.apache.ant/ant-launcher/jars/ant-launcher-1.9.2.jar"
         "/Users/walter/.ivy2/cache/org.slf4j/slf4j-simple/jars/slf4j-simple-1.7.5.jar"
@@ -60,6 +61,7 @@
       )
       :runtime-deps (
         "/Users/walter/.sbt/boot/scala-2.10.2/lib/scala-library.jar"
+        "/Users/walter/.ivy2/cache/org.mozilla/rhino/jars/rhino-1.7R4.jar"
         "/Users/walter/.ivy2/cache/org.apache.ant/ant/jars/ant-1.9.2.jar"
         "/Users/walter/.ivy2/cache/org.apache.ant/ant-launcher/jars/ant-launcher-1.9.2.jar"
         "/Users/walter/.ivy2/cache/org.slf4j/slf4j-simple/jars/slf4j-simple-1.7.5.jar"
@@ -108,6 +110,7 @@
       )
       :test-deps (
         "/Users/walter/.sbt/boot/scala-2.10.2/lib/scala-library.jar"
+        "/Users/walter/.ivy2/cache/org.mozilla/rhino/jars/rhino-1.7R4.jar"
         "/Users/walter/.ivy2/cache/org.apache.ant/ant/jars/ant-1.9.2.jar"
         "/Users/walter/.ivy2/cache/org.apache.ant/ant-launcher/jars/ant-launcher-1.9.2.jar"
         "/Users/walter/.ivy2/cache/org.slf4j/slf4j-simple/jars/slf4j-simple-1.7.5.jar"

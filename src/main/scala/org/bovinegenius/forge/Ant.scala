@@ -21,11 +21,12 @@ private object Coercions {
     val BooleanClass = classOf[java.lang.Boolean]
     val CharClass = classOf[java.lang.Character]
     cls match {
+      case null => ""
       case FileClass  => new File(value)
       case StringClass => value
       case BooleanClass => (value == "true" || value == "yes" || value == "on")
       case CharClass => value(0)
-      case _ => throw CoercionException("Unknown String coercion to type: %s".format(cls.getName))
+      case _ => value.toString
     }
   }
 
@@ -47,7 +48,13 @@ private object Coercions {
     value match {
       case v: String => coerceString(v, cls)
       case f: File => coerceFile(f, cls)
-      case _ => value
+      case _ => {
+        val StringClass = classOf[java.lang.String]
+        cls match {
+          case StringClass => if (value == null) "" else value.toString
+          case _ => value
+        }
+      }
     }
   }
 }
@@ -108,7 +115,6 @@ object Ant {
   def tasks = ant.tasks
   def taskNames = ant.taskNames
   def apply(): Ant = {
-    Jar("org.apache.ant", "ant", "1.9.2").load()
     new DefaultAnt()
   }
 }

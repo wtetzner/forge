@@ -11,6 +11,8 @@ scalacOptions += "-deprecation"
 
 javacOptions += "-Xlint:unchecked"
 
+libraryDependencies += "org.mozilla" % "rhino" % "1.7R4"
+
 libraryDependencies += "org.apache.ant" % "ant" % "1.9.2"
 
 libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.5"
