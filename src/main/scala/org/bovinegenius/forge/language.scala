@@ -1,15 +1,24 @@
 package org.bovinegenius.forge.language
 
+import scala.language.dynamics
+
 sealed trait Expression
 
-sealed trait FunctionCall
-case class PositionalCall(
+sealed trait Argument {
+  val value: Expression
+}
+case class PositionalArg(override val value: Expression) extends Argument
+case class NamedArg(
   val name: String,
-  val args: List[Expression]) extends FunctionCall with Call
-case class KeywordCall(
+  override val value: Expression)
+    extends Argument
+
+sealed trait Call extends Expression
+case class FunctionCall(
   val name: String,
-  val args: List[(String, Expression)]
-) extends FunctionCall with Expression
+  val args: Seq[Argument]
+) extends Call
+case class MethodCall(val obj: Expression, val invocation: FunctionCall) extends Call
 
 sealed trait Literal extends Expression {
   val value: Any
@@ -20,21 +29,69 @@ case class FString(override val value: Any) extends Literal
 case class FBool(override val value: Any) extends Literal
 case class FList(override val value: Any) extends Literal
 
-sealed trait Call extends Expression
-case class MethodCall(val obj: Expression, val invocation: FunctionCall) extends Call
+case class Variable(val name: String) extends Expression
 
-sealed trait Definition
-case class VariableDefinition(val name: String, val value: Any)
+sealed trait Function {
+  def name: String
+  def params: Seq[String]
+  def invoke(env: Map[String,Any], args: Seq[Any]): Any
+  def invoke(args: Seq[Any]): Any = {
+    invoke(Map(), args)
+  }
+}
+
+sealed trait Definition {
+  def name: String
+}
+case class VariableDefinition(override val name: String, val value: Any)
   extends Definition
 case class FunctionDefinition(
-  val name: String,
-  val args: List[String],
-  val body: List[Expression]) extends Definition
+  override val name: String,
+  val params: Seq[String],
+  val body: Seq[Expression]) extends Definition with Function {
+  override def invoke(env: Map[String,Any], args: Seq[Any]) = {
+    val newEnv: Map[String, Any] = env ++ Map(params.zip(args): _*)
+    body.map(expr => Language.eval(newEnv, expr)).last
+  }
+}
 case class TargetDefinition(
-  val name: String,
+  override val name: String,
   val deps: List[String],
   val body: List[Call]
 ) extends Definition
+
+class WrappedFn1[T,S](override val name: String, param: String, fn: T => S) extends Function {
+  override val params: Seq[String] = List(param)
+  override def invoke(env: Map[String,Any], args: Seq[Any]): Any = {
+    fn(args.head.asInstanceOf[T])
+  }
+}
+
+object WrappedFn {
+  def apply[T, S](name: String, param: String, fn: T => S) = {
+    new WrappedFn1(name, param, fn)
+  }
+}
+
+object Language {
+  def define(definitions: Seq[Definition]): Map[String,Definition] = {
+    Map(definitions.map(d => (d.name -> d)): _*)
+  }
+
+  def eval(env: Map[String, Any], expr: Expression): Any = {
+    expr match {
+      case lit: Literal => lit.value
+      case Variable(name) => env(name)
+      case FunctionCall(name, args) => {
+        val func: Any = eval(env, Variable(name))
+        func match {
+          case f: Function =>
+            f.invoke(env, args.map(x => eval(env, x.value)))
+        }
+      }
+    }
+  }
+}
 
 
 

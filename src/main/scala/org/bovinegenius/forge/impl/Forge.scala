@@ -6,6 +6,7 @@ import org.bovinegenius.forge.model._
 import org.eclipse.aether.resolution.DependencyResolutionException
 import org.bovinegenius.forge.xml._
 import org.bovinegenius.forge.Script
+import org.bovinegenius.forge.language._
 
 private class DefaultForge extends Forge {
   override def build(): Unit = {
@@ -31,7 +32,31 @@ private class DefaultForge extends Forge {
       ant.delete(dir = dir2)
       ant.echo(message = "Done.")
 
-      Script("test.js").println("text")
+      val jstest = Script("test.js")
+      jstest.log("DEBUG", "Cool Message")
+
+      Script("test.js").applyDynamic("blah")()
+
+      val env = Language.define(Seq(FunctionDefinition("incNum", List("num"), List(FunctionCall("inc", Seq(PositionalArg(Variable("num"))))))))
+      val newEnv: Map[String,Any] = env + ("inc" -> WrappedFn("inc", "n", (x: Int) => { x + 1 }))
+      val result = Language.eval(
+        newEnv,
+        FunctionCall("incNum", Seq(PositionalArg(FInt(8)))))
+      println(s"result: ${result.toString}")
+      println(Lexer.tokens("""generate-parser(grammar, outfile) =
+  stuff
+  call
+  hmm
+
+
+"""))
+      println(Parser.parse("""generate-parser(grammar, outfile) =
+  stuff
+  call
+  hmm
+
+
+"""))
     } catch {
       case e: DependencyResolutionException => {
         println(s"[ERROR] ${e.getMessage}")
