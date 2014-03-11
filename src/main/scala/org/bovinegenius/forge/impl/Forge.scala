@@ -65,7 +65,8 @@ private class DefaultForge extends Forge {
 """))
       println(ForgeParser.parseAll(ForgeParser.taskDef, 
 """
-name-x[a,b, c]"""))
+name-x[a,b, c]:
+"""))
     } catch {
       case e: DependencyResolutionException => {
         println(s"[ERROR] ${e.getMessage}")

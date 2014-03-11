@@ -127,7 +127,7 @@ object ForgeParser extends RegexParsers {
       extends Positional
 
   def taskDef: Parser[TaskDef] =
-    topLevelName ~ ("[" ~> repsep(identifierT, commaT) <~ "]") ^^ {
+    topLevelName ~ ("[" ~> repsep(identifierT, commaT) <~ "]:\n") ^^ {
       case name ~ args => TaskDef(name.chars, args.map(_.chars))
     }
 
