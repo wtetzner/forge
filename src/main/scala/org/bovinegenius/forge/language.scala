@@ -20,16 +20,18 @@ case class FunctionCall(
 ) extends Call
 case class MethodCall(val obj: Expression, val invocation: FunctionCall) extends Call
 
-sealed trait Literal extends Expression {
-  val value: Any
+case class Literal(val value: Any) extends Expression {
+  override def toString: String = {
+    value match {
+      case str: String => "\"%s\"".format(value.toString)
+      case _ => value.toString
+    }
+  }
 }
-case class FInt(override val value: Any) extends Literal
-case class FDouble(override val value: Any) extends Literal
-case class FString(override val value: Any) extends Literal
-case class FBool(override val value: Any) extends Literal
-case class FList(override val value: Any) extends Literal
 
-case class Variable(val name: String) extends Expression
+case class Variable(val name: String) extends Expression {
+  override def toString: String = name
+}
 
 sealed trait Function {
   def name: String
@@ -43,8 +45,10 @@ sealed trait Function {
 sealed trait Definition {
   def name: String
 }
-case class VariableDefinition(override val name: String, val value: Any)
-  extends Definition
+case class VariableDefinition(override val name: String, val value: Expression)
+  extends Definition {
+  override def toString: String = s"${name} = ${value.toString}"
+}
 case class FunctionDefinition(
   override val name: String,
   val params: Seq[String],
@@ -53,11 +57,22 @@ case class FunctionDefinition(
     val newEnv: Map[String, Any] = env ++ Map(params.zip(args): _*)
     body.map(expr => Language.eval(newEnv, expr)).last
   }
+  override def toString: String = {
+    val argNames = params.mkString(", ")
+    val bodyStr = body.map(_.toString).mkString("; ")
+    s"${name}(${argNames}) = { ${bodyStr} }"
+  }
 }
+
+case class EmbeddedLanguageSignifier(name: String)
+case class EmbeddedLanguage(
+  signifier: EmbeddedLanguageSignifier,
+  text: String)
+
 case class TargetDefinition(
   override val name: String,
   val deps: List[String],
-  val body: List[Call]
+  val body: Seq[Call]
 ) extends Definition
 
 class WrappedFn1[T,S](override val name: String, param: String, fn: T => S) extends Function {

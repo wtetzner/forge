@@ -29,20 +29,38 @@ object Tokens {
     val name: String = chars
   }
 
-  case class Comma(override val chars: String) extends Token
-  case class LeftParen(override val chars: String) extends Token
-  case class RightParen(override val chars: String) extends Token
-  case class LeftBrace(override val chars: String) extends Token
-  case class RightBrace(override val chars: String) extends Token
-  case class LeftBracket(override val chars: String) extends Token
-  case class RightBracket(override val chars: String) extends Token
-  case class Semicolon(override val chars: String) extends Token
-  case class Equals(override val chars: String) extends Token
+  case class Comma(override val chars: String) extends Token {
+    override def toString: String = "Comma"
+  }
+  case class LeftParen(override val chars: String) extends Token {
+    override def toString: String = "LeftParen"
+  }
+  case class RightParen(override val chars: String) extends Token {
+    override def toString: String = "RightParen"
+  }
+  case class LeftBrace(override val chars: String) extends Token {
+    override def toString: String = "LeftBrace"
+  }
+  case class RightBrace(override val chars: String) extends Token {
+    override def toString: String = "RightBrace"
+  }
+  case class LeftBracket(override val chars: String) extends Token {
+    override def toString: String = "LeftBracket"
+  }
+  case class RightBracket(override val chars: String) extends Token {
+    override def toString: String = "RightBracket"
+  }
+  case class Semicolon(override val chars: String) extends Token {
+    override def toString: String = "Semicolon"
+  }
+  case class Equals(override val chars: String) extends Token {
+    override def toString: String = "Equals"
+  }
 
   private def countWhitespace(chars: String): Int =
     chars.foldLeft(0)((b, chr) => chr match {
       case '\n' => b
-      case ' ' => b + 1
+      case ' '  => b + 1
       case '\t' => b + 2
     })
 
@@ -50,6 +68,7 @@ object Tokens {
     lazy val amount: Int = countWhitespace(chars)
     override lazy val toString: String = s"WhitespaceChunk(${amount})"
   }
+
   case class Indent(override val chars: String) extends Token {
     lazy val amount: Int = countWhitespace(chars)
     override lazy val toString: String = s"Indent(${amount})"
@@ -68,6 +87,52 @@ object Tokens {
         case _ => false
       }
   }
+}
+
+object ForgeParser extends RegexParsers {
+  case class WhitespaceChunk(val chars: String) extends Positional
+  case class Indent(val chars: String) extends Positional
+  case class Identifier(val chars: String) extends Positional
+  case class Paren(val chars: String) extends Positional
+  case class Comma(val chars: String) extends Positional
+
+  override def skipWhitespace = false
+
+  def whitespaceChunk: Parser[WhitespaceChunk] =
+    """[ \t]+""".r ^^ WhitespaceChunk
+  def indent: Parser[Indent] = """\n[ \t]*""".r ^^ Indent
+
+  def tok[T](parser: Parser[T]): Parser[T] =
+    rep(whitespaceChunk) ~> parser
+
+  def identifier: Parser[Identifier] =
+    positioned("""[a-zA-Z_?!-]+""".r ^^ Identifier)
+
+  def topLevelName: Parser[Identifier] = "\n" ~> identifier
+
+  def identifierT: Parser[Identifier] =
+    tok(identifier)
+
+  def paren: Parser[Paren] = positioned(("(" | ")") ^^ Paren)
+
+  def parenT: Parser[Paren] = tok(paren)
+
+  def comma: Parser[Comma] = "," ^^ Comma
+
+  def commaT: Parser[Comma] = tok(comma)
+
+  case class FunctionDef(val name: String, val args: Seq[String])
+      extends Positional
+  case class TaskDef(val name: String, val deps: Seq[String])
+      extends Positional
+
+  def taskDef: Parser[TaskDef] =
+    topLevelName ~ ("[" ~> repsep(identifierT, commaT) <~ "]") ^^ {
+      case name ~ args => TaskDef(name.chars, args.map(_.chars))
+    }
+
+  // def embeddedLanguageSignifier: Parser[EmbeddedLanguageSignifier] =
+  //   """""".r
 }
 
 object Lexer extends RegexParsers {
@@ -208,49 +273,54 @@ object Parser extends Parsers {
       case _ => false
     }
   })
+
   def identifier: Parser[Token] = elem("identifier", (token: Token) => {
     token match {
       case Identifier(_) => true
       case _ => false
     }
   })
+
   def leftParen: Parser[Token] = elem("(", (tok: Token) => {
     tok match {
       case LeftParen(_) => true
       case _ => false
     }
   })
+
   def rightParen: Parser[Token] = elem(")", (tok: Token) => {
     tok match {
       case RightParen(_) => true
       case _ => false
     }
   })
+
   def leftBrace: Parser[Token] = elem("{", (tok: Token) => {
     tok match {
       case LeftBrace(_) => true
       case _ => false
     }
   })
+
   def rightBrace: Parser[Token] = elem("}", (tok: Token) => {
     tok match {
       case RightBrace(_) => true
       case _ => false
     }
   })
+
   def comma: Parser[Token] = elem(",", (tok: Token) => {
     tok match {
       case Comma(_) => true
       case _ => false
     }
   })
+
   def semicolon: Parser[Token] = elem(";", (tok: Token) => {
     tok match {
       case Semicolon(_) => true
       case _ => false
     }
   })
-  // def functionDefinition: Parser[FunctionDefinition] =
-
 }
 

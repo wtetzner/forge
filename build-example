@@ -38,6 +38,14 @@ compile[protobuf-sources]:
                 src = ['src', 'target/protobuf-src'],
                 classes = 'target/classes')
 
+print-something(x) = *js*
+  java.lang.System.out.println(x);
+
+print-thing: *js*
+  var x = "asdf";
+  java.lang.System.out.println(x + ' - hmm');
+  java.lang.System.out.println("jar: " + protoc-lib);
+
 package[compile]:
   jar(inputs = ['target/classes', runtime-deps, 'src/resources'],
       output = 'program.jar')

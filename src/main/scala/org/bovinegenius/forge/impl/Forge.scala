@@ -37,11 +37,17 @@ private class DefaultForge extends Forge {
 
       Script("test.js").applyDynamic("blah")()
 
-      val env = Language.define(Seq(FunctionDefinition("incNum", List("num"), List(FunctionCall("inc", Seq(PositionalArg(Variable("num"))))))))
-      val newEnv: Map[String,Any] = env + ("inc" -> WrappedFn("inc", "n", (x: Int) => { x + 1 }))
+      val env = Language.define(
+        Seq(
+          FunctionDefinition("incNum", List("num"),
+            List(FunctionCall("inc",
+              Seq(PositionalArg(Variable("num"))))))))
+
+      val newEnv: Map[String,Any] =
+        env + ("inc" -> WrappedFn("inc", "n", (x: Int) => { x + 1 }))
       val result = Language.eval(
         newEnv,
-        FunctionCall("incNum", Seq(PositionalArg(FInt(8)))))
+        FunctionCall("incNum", Seq(PositionalArg(Literal(8)))))
       println(s"result: ${result.toString}")
       println(Lexer.tokens("""generate-parser(grammar, outfile) =
   stuff
@@ -57,6 +63,9 @@ private class DefaultForge extends Forge {
 
 
 """))
+      println(ForgeParser.parseAll(ForgeParser.taskDef, 
+"""
+name-x[a,b, c]"""))
     } catch {
       case e: DependencyResolutionException => {
         println(s"[ERROR] ${e.getMessage}")
