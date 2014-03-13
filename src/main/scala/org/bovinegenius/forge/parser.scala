@@ -90,8 +90,18 @@ object Tokens {
 }
 
 object ForgeParser extends RegexParsers {
+  private def countWhitespace(chars: String): Int =
+    chars.foldLeft(0)((b, chr) => chr match {
+      case '\n' => b
+      case ' '  => b + 1
+      case '\t' => b + 2
+    })
+
   case class WhitespaceChunk(val chars: String) extends Positional
-  case class Indent(val chars: String) extends Positional
+  case class Indent(val chars: String) extends Positional {
+    lazy val amount: Int = countWhitespace(chars)
+    override lazy val toString: String = s"Indent(${amount})"
+  }
   case class Identifier(val chars: String) extends Positional
   case class Paren(val chars: String) extends Positional
   case class Comma(val chars: String) extends Positional
@@ -103,7 +113,7 @@ object ForgeParser extends RegexParsers {
   def indent: Parser[Indent] = """\n[ \t]*""".r ^^ Indent
 
   def tok[T](parser: Parser[T]): Parser[T] =
-    rep(whitespaceChunk) ~> parser
+    opt(whitespaceChunk) ~> parser
 
   def identifier: Parser[Identifier] =
     positioned("""[a-zA-Z_?!-]+""".r ^^ Identifier)
@@ -123,12 +133,45 @@ object ForgeParser extends RegexParsers {
 
   case class FunctionDef(val name: String, val args: Seq[String])
       extends Positional
-  case class TaskDef(val name: String, val deps: Seq[String])
+  case class TaskDef(
+    val name: String,
+    val deps: Seq[String],
+    val body: CustomLanguage)
       extends Positional
+  case class CustomLanguage(
+    val name: String,
+    val body: String,
+    indent: Indent) extends Positional
+
+  def emptyLine: Parser[String] = """\n[ \t]*""".r
+  def nonemptyLine: Parser[String] =
+    """[^ \t][^\n]+""".r
+  def indentedLine(indent: String): Parser[String] =
+    indent ~ nonemptyLine ^^ {
+      case indent ~ text => indent + text
+    }
+  def languageLines(indent: String): Parser[String] =
+    rep(indentedLine(indent) | emptyLine) ^^ {
+      case lines => lines.mkString
+    }
+
+  def languageSpecifier: Parser[String] =
+    (opt(whitespaceChunk) ~ "*") ~> identifier <~ ("*" ~ opt(whitespaceChunk)) ^^ (_.chars)
+
+  def languageBody: Parser[CustomLanguage] =
+    for {
+      specifier <- languageSpecifier;
+      indent <- indent
+      restLine <- nonemptyLine
+      restBody <- languageLines(indent.chars)
+    } yield(CustomLanguage(
+      name = specifier,
+      body = indent.chars + restLine + restBody,
+      indent = indent))
 
   def taskDef: Parser[TaskDef] =
-    topLevelName ~ ("[" ~> repsep(identifierT, commaT) <~ "]:\n") ^^ {
-      case name ~ args => TaskDef(name.chars, args.map(_.chars))
+    topLevelName ~ ("[" ~> repsep(identifierT, commaT) <~ "]:") ~ languageBody ^^ {
+      case name ~ args ~ body => TaskDef(name.chars, args.map(_.chars), body)
     }
 
   // def embeddedLanguageSignifier: Parser[EmbeddedLanguageSignifier] =

@@ -65,7 +65,17 @@ private class DefaultForge extends Forge {
 """))
       println(ForgeParser.parseAll(ForgeParser.taskDef, 
 """
-name-x[a,b, c]:
+name-x[a,b, c]: *js*
+  var x = "asdf";
+  java.lang.System.out.println(x + ' - hmm');
+  java.lang.System.out.println("jar: " + protoc-lib);"""))
+
+      println(ForgeParser.parseAll(ForgeParser.languageLines("\n  "),
+"""
+  var x = "asdf";
+  java.lang.System.out.println(x + ' - hmm');
+  java.lang.System.out.println("jar: " + protoc-lib);
+
 """))
     } catch {
       case e: DependencyResolutionException => {
