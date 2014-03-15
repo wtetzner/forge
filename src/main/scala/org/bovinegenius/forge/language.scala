@@ -1,6 +1,7 @@
 package org.bovinegenius.forge.language
 
 import scala.language.dynamics
+import scala.util.parsing.input.Positional
 
 sealed trait Expression
 
@@ -45,14 +46,19 @@ sealed trait Function {
 sealed trait Definition {
   def name: String
 }
-case class VariableDefinition(override val name: String, val value: Expression)
-  extends Definition {
+
+case class VariableDefinition(
+  override val name: String,
+  val value: Expression)
+    extends Definition {
   override def toString: String = s"${name} = ${value.toString}"
 }
-case class FunctionDefinition(
+
+sealed trait FunctionDefinition extends Definition with Function
+case class NormalFunctionDefinition(
   override val name: String,
-  val params: Seq[String],
-  val body: Seq[Expression]) extends Definition with Function {
+  override val params: Seq[String],
+  val body: Seq[Expression]) extends FunctionDefinition {
   override def invoke(env: Map[String,Any], args: Seq[Any]) = {
     val newEnv: Map[String, Any] = env ++ Map(params.zip(args): _*)
     body.map(expr => Language.eval(newEnv, expr)).last
@@ -64,10 +70,46 @@ case class FunctionDefinition(
   }
 }
 
-case class EmbeddedLanguageSignifier(name: String)
+case class EmbeddedLanguageFunction(
+  override val name: String,
+  override val params: Seq[String],
+  val body: EmbeddedLanguage
+) extends FunctionDefinition {
+  override def invoke(env: Map[String,Any], args: Seq[Any]) = {
+    import javax.script._
+    val manager: ScriptEngineManager = new ScriptEngineManager(null)
+    val engine: ScriptEngine = manager.getEngineByName(body.name)
+    engine.eval(body.body)
+  }
+  override def toString: String = {
+    val argNames = params.mkString(", ")
+    s"${name}(${argNames}) = *${body.name}*${body.text}"
+  }
+}
+
 case class EmbeddedLanguage(
-  signifier: EmbeddedLanguageSignifier,
-  text: String)
+  val name: String,
+  text: String,
+  indent: String) extends Positional {
+  private def countWhitespace(chars: String): Int =
+    chars.foldLeft(0)((b, chr) => chr match {
+      case '\n' => b
+      case ' '  => b + 1
+      case '\t' => b + 2
+    })
+
+  private lazy val indentAmount = countWhitespace(indent)
+
+  lazy val body = {
+    text.lines.map({ line =>
+      if (line.length <= indentAmount) {
+        ""
+      } else {
+        line.substring(indentAmount)
+      }
+    }).mkString("\n").trim + "\n"
+  }
+}
 
 case class TargetDefinition(
   override val name: String,
